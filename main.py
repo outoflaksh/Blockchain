@@ -50,8 +50,4 @@ class Blockchain():
 
     @property
     def get_last_block(self):
-        return self.chain[-1]
-
-# genesis = Block(index = 0, timestamp = time.time(), transactions = "NA", prev_hash = "0", proof = 1)
-
-# print(genesis.info)
+        return self.chain[-1].info
