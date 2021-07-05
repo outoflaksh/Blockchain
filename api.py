@@ -25,6 +25,17 @@ def mine():
 
     return response, 200
 
+@app.route("/transactions/new", methods = ["POST"])
+def new_transaction():
+    req = request.get_json()
+    required = ['sender', 'recipient', 'amount']
+
+    if not all(value in required for value in req):
+        return jsonify({'message' : 'Missing values!'})
+
+    BLOCKCHAIN.add_new_transaction(sender = req['sender'], recipient = req['recipient'], amount = req['amount'])
+
+    return jsonify({'message' : 'Added transaction successfully!'}), 201
 
 if __name__ == "__main__":
     app.run(debug=True)
