@@ -30,11 +30,11 @@ class Blockchain():
                 index = len(self.chain),
                 timestamp = time.time(),
                 transactions = self.current_transactions,
-                prev_hash = prev_hash or self.chain[-1].hash,
+                prev_hash = prev_hash or self.chain[-1]['hash'],
                 proof = proof
             )
 
-        self.chain.append(block)
+        self.chain.append(block.info)
         self.current_transactions = []
 
         print(f"Added new block on index #{len(self.chain)}")
@@ -48,6 +48,18 @@ class Blockchain():
         print("Transaction added")
         return len(self.chain)
 
+    def get_proof_of_work(self, prev_proof):
+        proof = 0
+
+        while not(self.validate_proof(prev_proof, proof)):
+            proof += 1
+
+        return proof 
+
+    def validate_proof(self, prev_proof, proof):
+        return sha256(f'{prev_proof}{proof}'.encode()).hexdigest()[:4] == '0000'
+
+
     @property
     def get_last_block(self):
-        return self.chain[-1].info
+        return self.chain[-1]
