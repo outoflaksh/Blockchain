@@ -16,7 +16,7 @@ class Block():
         
     @property
     def info(self):
-        return {'index': self.index, 'timestamp' : self.timestamp, 'transcations' : self.transactions, 'previous hash' : self.prev_hash, 'proof of work' : self.proof, 'hash' : self.hash}
+        return {'index': self.index, 'timestamp' : self.timestamp, 'transactions' : self.transactions, 'previous hash' : self.prev_hash, 'proof of work' : self.proof, 'hash' : self.hash}
 
 
 
@@ -24,6 +24,11 @@ class Blockchain():
     def __init__(self):
         self.chain = []
         self.current_transactions = []
+
+    def create_genesis_block(self):
+        genesis_block = self.add_new_block(0, "#")
+        return genesis_block
+
 
     def add_new_block(self, proof, prev_hash = None):
         block = Block(
@@ -65,8 +70,3 @@ class Blockchain():
     @property
     def get_last_block(self):
         return self.chain[-1]
-
-# chain = Blockchain()
-# chain.add_new_block(0, '#')
-# chain.add_new_block(chain.get_proof_of_work())
-# print(chain.get_last_block)
