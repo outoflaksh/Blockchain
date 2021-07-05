@@ -1,4 +1,6 @@
 from hashlib import sha256
+from urllib.parse import urlparse
+import requests
 import time
 
 class Block():
@@ -24,10 +26,7 @@ class Blockchain():
     def __init__(self):
         self.chain = []
         self.current_transactions = []
-
-    def create_genesis_block(self):
-        genesis_block = self.add_new_block(0, "#")
-        return genesis_block
+        self.nodes = set()
 
 
     def add_new_block(self, proof, prev_hash = None):
@@ -66,11 +65,53 @@ class Blockchain():
     def validate_proof(self, prev_proof, proof):
         return sha256(f'{prev_proof}{proof}'.encode()).hexdigest()[:4] == '0000'
 
+    def create_genesis_block(self):
+        genesis_block = self.add_new_block(0, "#")
+        return genesis_block
+
+    def validate_chain(self, chain):
+        for i in range(1, len(chain)):
+            prev_hash = chain[i-1]['hash']
+            prev_proof = chain[i-1]['proof of work']
+
+            if chain[i]['previous hash'] != prev_hash:
+                return False 
+            
+            if not self.validate_proof(prev_proof, chain[i]['proof of work']):
+                return False 
+
+        return True
+
 
     @property
     def last_block(self):
         return self.chain[-1]
 
     @property
-    def chain(self):
+    def get_chain(self):
         return {'chain' : self.chain, 'length' : len(self.chain)}
+
+    def register_new_node(self, node_url):
+        parsed_url = urlparse(node_url).netloc
+        self.nodes.add(parsed_url)
+        return 
+
+    def resolve_conflict(self):
+        new_chain = None 
+        max_length = len(self.chain)
+
+        for node in self.nodes():
+            response = requests.get(f'http://{node}/chain')
+            if response.status_code == 200:
+                current_length = response.json()['length']
+                current_chain = response.json()['chain']
+
+                if current_length > max_length and self.validate_chain(current_chain):
+                    max_length = current_length
+                    new_chain = current_chain
+
+        if new_chain:
+            self.chain = new_chain
+            return True 
+        
+        return False
