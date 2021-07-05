@@ -55,7 +55,7 @@ class Blockchain():
         return len(self.chain)
 
     def get_proof_of_work(self, prev_proof = None):
-        prev_proof = prev_proof or self.get_last_block['proof of work']
+        prev_proof = prev_proof or self.last_block['proof of work']
         proof = 0
 
         while not(self.validate_proof(prev_proof, proof)):
@@ -68,5 +68,9 @@ class Blockchain():
 
 
     @property
-    def get_last_block(self):
+    def last_block(self):
         return self.chain[-1]
+
+    @property
+    def chain(self):
+        return {'chain' : self.chain, 'length' : len(self.chain)}
