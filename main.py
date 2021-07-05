@@ -38,6 +38,7 @@ class Blockchain():
         self.current_transactions = []
 
         print(f"Added new block on index #{len(self.chain)}")
+
         return block.info
 
     def add_new_transaction(self, sender, recipient, amount):
@@ -45,10 +46,11 @@ class Blockchain():
 
         self.current_transactions.append(transaction)
 
-        print("Transaction added")
+        print(f"New transaction added, current transactions: {len(self.current_transactions)}")
         return len(self.chain)
 
-    def get_proof_of_work(self, prev_proof):
+    def get_proof_of_work(self, prev_proof = None):
+        prev_proof = prev_proof or self.get_last_block['proof of work']
         proof = 0
 
         while not(self.validate_proof(prev_proof, proof)):
@@ -63,3 +65,8 @@ class Blockchain():
     @property
     def get_last_block(self):
         return self.chain[-1]
+
+# chain = Blockchain()
+# chain.add_new_block(0, '#')
+# chain.add_new_block(chain.get_proof_of_work())
+# print(chain.get_last_block)
