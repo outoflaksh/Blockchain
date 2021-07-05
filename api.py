@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request
+from flask import Flask, json, jsonify, request
 from uuid import uuid4
 
 from main import Blockchain
@@ -8,8 +8,9 @@ NODE_ID = str(uuid4())
 BLOCKCHAIN = Blockchain()
 
 BLOCKCHAIN.create_genesis_block()
-# 3 endpoints: to mine a new block, to add a new transaction, and to retrieve the full chain
+# 5 endpoints: to mine a new block, to add a new transaction, to retrieve the full chain, to register new node and to resolve conflict
 
+# ENDPOINTS FOR BLOCKS
 @app.route("/mine", methods = ['GET'])
 def mine():
     """Proof of work calculated, node rewarded, and new block added to the chain.
@@ -43,8 +44,26 @@ def new_transaction():
 @app.route("/chain", methods = ['GET'])
 def chain():
     """Current chain is returned as json response"""
-    return jsonify(BLOCKCHAIN.chain), 200
+    return jsonify(BLOCKCHAIN.get_chain), 200
 
+# ENDPOINTS FOR NODES
+@app.route("/nodes/register", methods = ['POST'])
+def register_node():
+    req = request.get_json()
+
+    if 'url' not in req.keys():
+        return jsonify({'message' : 'Node URL missing from request!'}), 400
+    url = req['url']
+    BLOCKCHAIN.register_new_node(url)
+
+    return jsonify({'message' : 'Node URL added successfully!'}), 201
+
+@app.route("/nodes/resolve", methods = ['GET'])
+def resolve_conflicts():
+    if BLOCKCHAIN.resolve_conflict():
+        return jsonify({'message' : 'One chain changed!'})
+    return jsonify({'message' : 'No chain changed, current chain authoratative!'})
+    
 
 if __name__ == "__main__":
     app.run(debug=True)
